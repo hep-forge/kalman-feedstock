@@ -1,5 +1,5 @@
 {% set versions = {
-    "0.0.0": "REPLACE_WITH_SHA256"
+    "1.0.0": "35501dcc7f45b5e1c9a69a242d600ff614f0dbb4"
 } %}
 
 {% set version = environ.get('COMMIT_VERSION', None) %}
@@ -13,15 +13,13 @@ package:
   version: {{ environ.get('ANACONDA_VERSION', version)|replace("-", ".") }}
 
 source:
-  url: "https://max-planck.sv.yc.tcu.ac.jp/dsg/kalman-framework/archive/refs/tags/{{ version }}.tar.gz"   # TODO: confirm upstream's actual tag/tarball naming
-  {% if versions.get(version, None) %}
-  sha256: {{ versions.get(version) }}
-  {% endif %}
+  git_url: "https://max-planck.sv.yc.tcu.ac.jp/dsg/kalman-framework.git"
+  git_rev: {{ versions.get(version, version) }}
 
 build:
   number: 0
   run_exports:
-    - {{ pin_subpackage(name, max_pin="x.x.x") }}
+    - {{ pin_subpackage(name, max_pin="x.x") }}
 
 requirements:
   build:
@@ -31,18 +29,19 @@ requirements:
     - cmake
     - make
   host:
-    # TODO: library dependencies
-  run:
-    # TODO: runtime dependencies
+    - libcblas
+    - blas-devel   # cblas.h
 
 test:
   commands:
-    - echo "TODO: a real smoke test"
+    - test -f $PREFIX/lib/libKalmanFramework${SHLIB_EXT}
+    - test -f $PREFIX/include/Kalman/Kalman.h
 
 about:
   home: "https://max-planck.sv.yc.tcu.ac.jp/dsg/kalman-framework"
   license: "LGPL-2.1-or-later"
-  summary: "libKalmanFramework: Kalman-family estimation (KF, EKF, UKF, PF, EnKF, CKF, IMM) in C++20"
+  license_file: LICENSE
+  summary: "libKalmanFramework: Kalman-family estimation (KF, EKF, UKF, PF, EnKF, CKF, IMM) in C++20, no required dependency"
 
 extra:
   recipe-maintainers:
