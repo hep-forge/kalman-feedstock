@@ -3,7 +3,7 @@ c_stdlib:
   - macosx_deployment_target   # [osx]
 c_stdlib_version:              # [unix]
   - 2.17                       # [linux]
-  - 11.0                       # [osx]  
+  - 13.3                     # [osx]  cblas_dgemm from Accelerate's new LAPACK interface
 
 # ---- Compiler floor (ABI)
 # Pin the compiler major instead of inheriting conda-build's "newest
