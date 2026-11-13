@@ -1,7 +1,5 @@
 {% set versions = {
-    "1.0.2": "9fdc02dc075450f61a8b9def742519ccc85c6eb6",
-    "1.0.1": "100a7eea78ba484d9beb0f913990abb6edc8f243",
-    "1.0.0": "35501dcc7f45b5e1c9a69a242d600ff614f0dbb4"
+    "1.0.0": "6d530ebc8b51ecf7f8af8e500a115f6ce1aabd7e"
 } %}
 
 {% set version = environ.get('COMMIT_VERSION', None) %}
@@ -9,6 +7,14 @@
 {% set version = version|string %}
 
 {% set name = environ.get('ANACONDA_PACKAGE', 'kalman')|string|lower %}
+{% set libtorch = libtorch if libtorch else "0" %}
+
+# libKalman (formerly libKalmanFramework, kept as a symlink) with all its
+# components: Apps (application models), Learn (ONNX and TorchScript policies,
+# the batched field solver) and Net (JSON API, REST and MCP servers). The CMake
+# package: find_package(Kalman COMPONENTS Apps Learn Net), Kalman::Kalman.
+# Plain "#" comments only: the publish workflow's version trimming strips
+# {% %}/{{ }} and yaml-loads the rest, so a Jinja comment block breaks it.
 
 package:
   name: {{ name }}
@@ -20,6 +26,7 @@ source:
 
 build:
   number: 0
+  string: "torch{{ libtorch.replace('.', '') }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
   run_exports:
     - {{ pin_subpackage(name, max_pin="x.x") }}
 
@@ -33,17 +40,42 @@ requirements:
   host:
     - libcblas
     - blas-devel   # cblas.h
+    - zlib
+    # Learn: the same libTorch as root-plus (cpu build glob: the solver
+    # otherwise picks a CUDA libtorch), and ONNX Runtime
+    - libtorch {{ libtorch }}.* cpu_generic*
+    - onnxruntime-cpp
+    # Net
+    - nlohmann_json
+    - cpp-httplib
+    - openssl
+    - libsqlite
+  run:
+    - libtorch {{ libtorch }}.* cpu_generic*
 
 test:
+  files:
+    - consumer/CMakeLists.txt
+  requires:
+    - {{ compiler('cxx') }}
+    - cmake
+    - make
   commands:
-    - test -f $PREFIX/lib/libKalmanFramework${SHLIB_EXT}
+    {% for lib in ["Kalman", "KalmanApps", "KalmanLearn", "KalmanNet"] %}
+    - test -f $PREFIX/lib/lib{{ lib }}${SHLIB_EXT}
+    {% endfor %}
+    # the former name, kept as a symlink
+    - test -e $PREFIX/lib/libKalmanFramework${SHLIB_EXT}
     - test -f $PREFIX/include/Kalman/Kalman.h
+    - test -x $PREFIX/bin/kalman
+    # the CMake package finds every component it was built with
+    - cmake -S consumer -B consumer/build -DCMAKE_PREFIX_PATH=$PREFIX
 
 about:
   home: "https://max-planck.sv.yc.tcu.ac.jp/dsg/kalman-framework"
   license: "LGPL-2.1-or-later"
   license_file: LICENSE
-  summary: "libKalmanFramework: Kalman-family estimation (KF, EKF, UKF, PF, EnKF, CKF, IMM) in C++20, no required dependency"
+  summary: "libKalman: Kalman-family estimation (KF, EKF, UKF, PF, EnKF, CKF, IMM) in C++20, with application models, learned policies and a JSON/REST/MCP API"
 
 extra:
   recipe-maintainers:

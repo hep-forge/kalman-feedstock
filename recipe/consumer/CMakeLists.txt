@@ -1,0 +1,10 @@
+# Package test: the installed CMake package resolves every component.
+cmake_minimum_required(VERSION 3.20)
+project(kalman_consumer CXX)
+find_package(Kalman REQUIRED COMPONENTS Apps Learn Net)
+foreach(_t Kalman::Kalman Kalman::Apps Kalman::Learn Kalman::Net)
+    if(NOT TARGET ${_t})
+        message(FATAL_ERROR "${_t} missing")
+    endif()
+endforeach()
+message(STATUS "Kalman ${Kalman_VERSION}: Kalman::Kalman Apps Learn Net")

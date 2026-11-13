@@ -28,3 +28,8 @@ libgcc_version:        # [linux]
   - 14.*                     # [linux]
 libstdcxx_version:     # [linux]
   - 14.*                     # [linux]
+
+# libKalmanLearn links libTorch, and a process holds one libTorch: use the one
+# root-plus is built with (root-plus-feedstock conda_build_config.yaml), CPU build
+libtorch:
+  - 2.8.0
