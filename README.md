@@ -13,7 +13,12 @@ libKalmanFramework: Kalman-family estimation (KF, EKF, UKF, PF, EnKF, CKF, IMM) 
 
 ## Architectures
 
-State per architecture: see the platforms badge above or [anaconda.org/hep-forge/kalman](https://anaconda.org/hep-forge/kalman).
+| Architecture | Latest published |
+|--------------|------------------|
+| linux-amd64 (`linux-64`) | ✅ `1.0.2` |
+| linux-arm64 (`linux-aarch64`) | ✅ `1.0.2` |
+
+_As of the last feedstock render; the badges above are live._
 
 
 ## Install
