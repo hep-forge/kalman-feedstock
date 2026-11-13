@@ -5,7 +5,7 @@
 [![Anaconda Version](https://anaconda.org/hep-forge/kalman/badges/version.svg)](https://anaconda.org/hep-forge/kalman)
 [![Anaconda Platforms](https://anaconda.org/hep-forge/kalman/badges/platforms.svg)](https://anaconda.org/hep-forge/kalman)
 
-Feedstock for [kalman](https://max-planck.sv.yc.tcu.ac.jp/dsg/kalman-framework) — part of [hep-forge](https://anaconda.org/hep-forge).
+Feedstock for [kalman](https://github.com/meiyasan/kalman-world) — part of [hep-forge](https://anaconda.org/hep-forge).
 Builds linux-amd64 + linux-arm64 in one matrix workflow and uploads to the
 [hep-forge](https://anaconda.org/hep-forge) Anaconda channel.
 

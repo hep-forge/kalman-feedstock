@@ -1,5 +1,5 @@
 {% set versions = {
-    "1.0.0": "6d530ebc8b51ecf7f8af8e500a115f6ce1aabd7e"
+    "1.0.0": "790a54401106d68f8c6da90674cc195408e152dc"
 } %}
 
 {% set version = environ.get('COMMIT_VERSION', None) %}
@@ -21,7 +21,7 @@ package:
   version: {{ environ.get('ANACONDA_VERSION', version)|replace("-", ".") }}
 
 source:
-  git_url: "https://max-planck.sv.yc.tcu.ac.jp/dsg/kalman-framework.git"
+  git_url: "https://github.com/meiyasan/kalman-world.git"
   git_rev: {{ versions.get(version, version) }}
 
 build:
@@ -72,7 +72,7 @@ test:
     - cmake -S consumer -B consumer/build -DCMAKE_PREFIX_PATH=$PREFIX
 
 about:
-  home: "https://max-planck.sv.yc.tcu.ac.jp/dsg/kalman-framework"
+  home: "https://github.com/meiyasan/kalman-world"
   license: "LGPL-2.1-or-later"
   license_file: LICENSE
   summary: "libKalman: Kalman-family estimation (KF, EKF, UKF, PF, EnKF, CKF, IMM) in C++20, with application models, learned policies and a JSON/REST/MCP API"
