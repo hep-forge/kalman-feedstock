@@ -8,6 +8,12 @@
 
 {% set name = environ.get('ANACONDA_PACKAGE', 'kalman')|string|lower %}
 {% set libtorch = libtorch if libtorch else "0" %}
+# CPU or CUDA build (conda_build_config.yaml cuda_compiler_version), with the
+# matching libTorch: cpu_generic, or cudaXYZ_generic for CUDA X.YZ
+{% set cuda_compiler_version = cuda_compiler_version or "None" %}
+{% set cuda = cuda_compiler_version != "None" %}
+{% set flavour = "cuda" ~ cuda_compiler_version.replace(".", "") if cuda else "cpu" %}
+{% set torch_build = flavour ~ "_generic" %}
 
 # libKalman (formerly libKalmanFramework, kept as a symlink) with all its
 # components: Apps (application models), Learn (ONNX and TorchScript policies,
@@ -25,8 +31,11 @@ source:
   git_rev: {{ versions.get(version, version) }}
 
 build:
-  number: 0
-  string: "torch{{ libtorch.replace('.', '') }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
+  # conda-forge's ranking: CUDA builds 200 above CPU ones, and they need a
+  # driver (__cuda below), so a machine with an NVIDIA GPU gets the CUDA build
+  # and every other machine the CPU one. Pick one with kalman=*=*cpu* / *cuda*.
+  number: {{ 200 if cuda else 0 }}
+  string: "torch{{ libtorch.replace('.', '') }}_{{ flavour }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
   run_exports:
     - {{ pin_subpackage(name, max_pin="x.x") }}
 
@@ -35,23 +44,36 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - {{ stdlib('c') }}
+    # libTorch's CMake config enables the CUDA language: nvcc and the toolkit
+    - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
     - cmake
     - make
   host:
     - libcblas
     - blas-devel   # cblas.h
     - zlib
-    # Learn: the same libTorch as root-plus (cpu build glob: the solver
-    # otherwise picks a CUDA libtorch), and ONNX Runtime
-    - libtorch {{ libtorch }}.* cpu_generic*
-    - onnxruntime-cpp
+    # Learn: the same libTorch as root-plus, cpu_generic or cudaXYZ_generic
+    # (explicit: the solver would otherwise pick a flavour of its own)
+    - libtorch {{ libtorch }}.* {{ torch_build }}*
+    # libTorch's CMake config looks up these CUDA libraries
+    {% if cuda %}
+    - cuda-version {{ cuda_compiler_version }}.*
+    {% for dev in ["cuda-cudart-dev", "cuda-nvrtc-dev", "cuda-nvtx-dev", "cuda-cupti-dev", "cuda-driver-dev",
+                   "libcublas-dev", "libcufft-dev", "libcurand-dev", "libcusolver-dev", "libcusparse-dev"] %}
+    - {{ dev }}
+    {% endfor %}
+    {% endif %}
+    # CPU ONNX Runtime in both builds: libKalmanLearn uses no CUDA execution
+    # provider, and the CUDA builds would pull a toolkit of their own
+    - onnxruntime-cpp * *_cpu
     # Net
     - nlohmann_json
     - cpp-httplib
     - openssl
     - libsqlite
   run:
-    - libtorch {{ libtorch }}.* cpu_generic*
+    - libtorch {{ libtorch }}.* {{ torch_build }}*
+    - __cuda  # [cuda_compiler_version != "None"]
 
 test:
   files:

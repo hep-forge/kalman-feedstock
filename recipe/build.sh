@@ -13,3 +13,8 @@ cmake --install build
 for lib in KalmanLearn KalmanNet; do
     test -f "$PREFIX/lib/lib${lib}${SHLIB_EXT}" || { echo "lib${lib} was not built"; exit 1; }
 done
+# A CUDA build must keep libtorch_cuda linked: it registers the CUDA kernels
+if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
+    ${READELF:-readelf} -d "$PREFIX/lib/libKalmanLearn${SHLIB_EXT}" | grep -q 'libtorch_cuda' \
+        || { echo "libKalmanLearn does not link libtorch_cuda"; exit 1; }
+fi

@@ -30,6 +30,16 @@ libstdcxx_version:     # [linux]
   - 14.*                     # [linux]
 
 # libKalmanLearn links libTorch, and a process holds one libTorch: use the one
-# root-plus is built with (root-plus-feedstock conda_build_config.yaml), CPU build
+# root-plus is built with (root-plus-feedstock conda_build_config.yaml)
 libtorch:
   - 2.8.0
+
+# A CPU build everywhere and a CUDA build on Linux, against conda-forge's
+# libtorch cpu_generic / cuda129_generic (2.8.0 has CUDA 12.9 only). nvcc 12.9
+# takes GCC up to 14, the floor above. hep-forge CI solves the CUDA build with
+# CONDA_OVERRIDE_CUDA (no GPU on the runners) when this key is present.
+cuda_compiler:
+  - cuda-nvcc
+cuda_compiler_version:
+  - None
+  - 12.9                     # [linux]
