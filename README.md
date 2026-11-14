@@ -9,14 +9,14 @@ Feedstock for [kalman](https://github.com/meiyasan/kalman-world) — part of [he
 Builds linux-amd64 + linux-arm64 in one matrix workflow and uploads to the
 [hep-forge](https://anaconda.org/hep-forge) Anaconda channel.
 
-libKalmanFramework: Kalman-family estimation (KF, EKF, UKF, PF, EnKF, CKF, IMM) in C++20, no required dependency
+libKalman: Kalman-family estimation (KF, EKF, UKF, PF, EnKF, CKF, IMM) in C++20, with application models, learned policies and a JSON/REST/MCP API
 
 ## Architectures
 
 | Architecture | Latest published |
 |--------------|------------------|
-| linux-amd64 (`linux-64`) | ✅ `1.0.2` |
-| linux-arm64 (`linux-aarch64`) | ✅ `1.0.2` |
+| linux-amd64 (`linux-64`) | ✅ `1.0.0` |
+| linux-arm64 (`linux-aarch64`) | ✅ `1.0.0` |
 
 _As of the last feedstock render; the badges above are live._
 
